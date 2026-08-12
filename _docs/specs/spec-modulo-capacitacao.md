@@ -17,15 +17,36 @@ Os _Auditores_ da **CGE-MT** tem a meta de realizar ao menos 40 horas de capacit
 - **Temas dos Cursos**: Temas prioritários definidos ***anualmente*** por **Portaria**.
 
 ### 1.4. Telas
-✨  **1.4.1. Quadro Principal**: A página principal do sistema mostra um quadro com as métricas da área e as informações de capacitação do auditor.  
-- Tabelas
+✨  **1.4.1. Visão Geral**: A página principal do sistema mostra um quadro com as métricas individuais do Servidor, independentemente de ser _chefe de unidade_.
 - Gráficos
+  - Total de horas por mês: gráfico de barras mostrando o total de horas realizadas por mês.
+  - Progresso Anual: Total de horas realizadas.
+  - Total de Cursos Planejados
+  - Horas que faltam realizar.
+  
+✨  **1.4.2. Lançamento de Cursos**: Tela acessível por menu e pelo quadro principal. É onde os servidores cadastram os seus cursos.
+- Painéis
+  - Lançamento de um novo curso.
+- Tabelas
+  - Cursos: todos os cursos do servidor/auditor.
+  
+✨  **1.4.3. Visão Gerencial**: tela em que o _chefe da unidade_ acompanha as métricas das unidades subordinadas a ele.
+- Tabela
+  - Temas mais cursados
+  - Progresso dos Servidores: tabela com todos os servidores da unidade, contendo nome, categoria (auditor ou servidor), progresso (barra), horas realizadas e status. Botão para carregar o certificado.
+- Gráficos
+  - Progresso da Unidade: gráfico de colunas composto por trimestre.
+  - Total de horas por unidade: gráfico de barras composto (horas planejadas e realizadas). Eixo horizontal contém a unidade e o eixo vertical o percentual.
+  - Total de horas planejadas por macrofunção (auditoria, corregedoria, ouvidoria, especial, administrativo): gráfico de pizza.
+  - Total de horas realizadas por macrofunção (auditoria, corregedoria, ouvidoria, especial, administrativo): gráfico de pizza.
+  - Temas realizados versus planejado: gráfico de barras composto (realizado e planejado) por tema.
 
-✨  **1.4.2. Lançamento de Cursos**: Tela acessível por menu e pelo quadro principal. É onde os auditores cadastram os seus cursos.
+✨  **1.4.4. Temas Prioritários**
+- Descrição: tabela e painel de cadastro de tema. 
+- Tabela: mostra os temas por Portaria (caixa de seleção).
 
-✨  **1.4.3. Acompanhamento da Superintendência**: tela em que o _superintendente_ acompanha as métricas da sua unidade.
-
-✨  **1.4.4. Menus e Navegação**
+✨  **1.4.5. Servidores da Unidade**
+- Descrição: tabela de todos os servidores/auditores selecionado por unidade. Mostra o chefe da unidade, com seu nome, email e matrícula.
 
 ## 2. Arquitetura
 ### 2.1. Models
@@ -38,10 +59,10 @@ Os _Auditores_ da **CGE-MT** tem a meta de realizar ao menos 40 horas de capacit
 | mnemonico       | str         | Nome mnemonico do tema.    |
 | descricao       | str         | Descrição do tema.    |
 | portaria        | str         | A portaria que instituiu o tema.    |
-| deleted         | bool        | Deleção lógica.       |
+| vigente         | bool        | Deleção lógica.       |
 | created_at      | datetime    | Descrição do tema.    |
-| updated_at      | datetime    | Descrição do tema.    |
-| deleted_at      | datetime    | Descrição do tema.    |
+| updated_at      | datetime    | Última alteração.    |
+| vigente_at      | datetime    | Vigente até a data (inclusive).   |
 
 ✨  **2.1.2. Cursos**  
 **Tabela:** cap_cursos.
@@ -57,8 +78,21 @@ Os _Auditores_ da **CGE-MT** tem a meta de realizar ao menos 40 horas de capacit
 | hr_planejadas  | int         | Instituição ofertante do curso.    |
 | hr_realizadas  | int         | Instituição ofertante do curso.    |
 
-### 2.2. Componentes
-#### 2.2.1. Front-end
+### 2.2. APIs de Carga de Dados
+✨  **2.2.1. Dados do Servidor**  
+- Descrição: retorna as informações cadastrais do servidor.
+- Atributos: Nome, email, unidade.
+
+✨  **2.2.2. Servidores da Unidade**  
+- Descrição: retorna todos os servidores da unidade.
+- Atributos: Lista de servidores. Cada servidor com o nome, email e matrícula.
+
+✨  **2.2.3. Unidades Administrativas**  
+- Descrição: retorna todas as unidades administrativas da CGE.
+- Atributos: Lista de unidades. Cada unidade retornada contém o nome, mnemonico, nome do chefe da unidade, email do chefe da unidade e matrícula do chefe da unidade. Cada unidade tem a referência para a unidade superiora a que está vinculada. Cada unidade tem a sua macrofunção (auditoria, corregedoria, ouvidoria, etc).
+
+### 2.3. Componentes
+#### 2.3.1. Front-end
 - **Responsabilidade**:
 - **Colaboração**: comunica-se diretamente com os endpoints do microserviço `capacitacao`.
   - O ms `capacitacao` funciona com **BFF** do front-end.
@@ -66,7 +100,7 @@ Os _Auditores_ da **CGE-MT** tem a meta de realizar ao menos 40 horas de capacit
 - **Linguagem**: `typescript`.
 - **Tecnologia**: `react` + `tailwind`.
 
-#### 2.2.2. Microserviço `capacitacao`
+#### 2.3.2. Microserviço `capacitacao`
 - **Responsabilidade**: 
 - **Pasta**: `ms/capacitacao`.
 - **Liguangem**: `python`.
@@ -77,7 +111,7 @@ Os _Auditores_ da **CGE-MT** tem a meta de realizar ao menos 40 horas de capacit
   - models: modelos e repositórios.
     - Repository: encapsula a lógica de persistência.
 
-#### 2.2.3. Processamento de Dados
+#### 2.3.3. Processamento de Dados
 - **Responsabilidade**: extração de relatórios.
 - **Pasta**: `process/capacitacao`.
 - **Liguangem**: `python`.
